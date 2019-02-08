@@ -6,16 +6,22 @@ from bs4 import BeautifulSoup
 import telebot
 import time
 from functools import wraps
-from telebot import types
+#from telebot import types
 from flask import Flask, request
+import requests  
+from bottle import (  
+    run, post, response, request as bottle_request
+)
 import os
 #from selenium import webdriver
 #from webdriver_manager.chrome import ChromeDriverManager
 #from selenium.webdriver.common.keys import Keys
 API_TOKEN = '714169450:AAGPQyLSTXfY6umwMmJp9nrJWO1c6fCf7e4'
 bot = telebot.TeleBot(API_TOKEN)
+server = Flask(__name__)
+
 PORT = int(os.environ.get('PORT', '8443'))
-updater = Updater(API_TOKEN)
+#updater = Updater(API_API_TOKEN)
 global br,gid,rid,pid,finalurl#,checkrno
 finalurl = "http://studentscorner.vardhaman.org/"
 gid=[]
@@ -297,9 +303,24 @@ def get_outing(rno,pas,tid):
 	
 	#bot.send_photo(chat_id=tid,open(n, 'rb'))
 	#driver.quit()
-updater.start_webhook(listen="0.0.0.0",
+@server.route('/' + API_TOKEN, methods=['POST'])
+def getMessage():
+    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    return "!", 200
+
+
+@server.route("/")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url='https://vteletest.herokuapp.com/' + API_TOKEN)
+    return "!", 200
+
+
+if __name__ == "__main__":
+	server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+'''updater.start_webhook(listen="0.0.0.0",
                       port=5000,
-                      url_path=API_TOKEN)
-updater.bot.set_webhook("https://frozen-chamber-69643.herokuapp.com/" + API_TOKEN)
+                      url_path=API_API_TOKEN)
+updater.bot.set_webhook("https://vteletest.herokuapp.com/" + API_TOKEN)
 updater.idle()
-#bot.polling()
+#bot.polling()'''
